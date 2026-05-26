@@ -51,7 +51,6 @@ const Banner = () => {
               }
         }
       >
-        0{i + 1}
       </div>
     ),
     responsive: [
@@ -91,7 +90,6 @@ const Banner = () => {
                     }
               }
             >
-              0{i + 1}
             </div>
           ),
         },

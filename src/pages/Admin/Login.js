@@ -39,8 +39,8 @@ const Login = () => {
     }
 
     // Validate credentials before dispatching
-    if (username === "admin1" && password === "devdigitaxx") {
-      dispatch(login({ username, password }));
+    dispatch(login({ username, password }));
+    if (isAuthenticated) {
       navigate("/admin");
     } else {
       setError("Invalid username or password");

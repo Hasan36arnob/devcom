@@ -3,8 +3,8 @@ import { createSlice } from "@reduxjs/toolkit";
 const initialState = {
   isAuthenticated: false,
   adminCredentials: {
-    username: "admin1",
-    password: "devdigitaxx",
+    username: process.env.REACT_APP_ADMIN_USERNAME || "admin",
+    password: process.env.REACT_APP_ADMIN_PASSWORD || "",
   },
   products: [
     {

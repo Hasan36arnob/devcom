@@ -4,8 +4,9 @@ import { HiOutlineMenuAlt4, HiHeart } from "react-icons/hi";
 import { FaSearch, FaUser, FaCaretDown, FaShoppingCart, FaRegHeart } from "react-icons/fa";
 import Flex from "../../designLayouts/Flex";
 import { Link, useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { paginationItems } from "../../../constants";
+import { addToWishlist } from "../../../redux/orebiSlice";
 
 const HeaderBottom = () => {
   const cartProducts = useSelector((state) => state.orebiReducer.products);
@@ -131,7 +132,10 @@ const HeaderBottom = () => {
                           </p>
                         </div>
                         <div className="flex items-center gap-2">
-                          <button className="p-2 hover:bg-indigo-100 rounded-lg transition-colors text-gray-400 hover:text-indigo-600">
+                          <button 
+                            onClick={() => dispatch(addToWishlist(item))}
+                            className="p-2 hover:bg-indigo-100 rounded-lg transition-colors text-gray-400 hover:text-indigo-600"
+                          >
                             <FaRegHeart className="w-4 h-4" />
                           </button>
                         </div>
@@ -153,7 +157,7 @@ const HeaderBottom = () => {
             <Link to="/wishlist" className="relative p-2.5 rounded-xl hover:bg-gradient-to-br hover:from-pink-50 hover:to-rose-50 text-slate-600 hover:text-pink-600 transition-all duration-200 group">
               <HiHeart className="w-5 h-5 group-hover:scale-110 group-hover:rotate-12 transition-transform" />
               <span className="absolute -top-1 -right-1 font-titleFont text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full bg-gradient-to-r from-pink-500 to-rose-500 text-white shadow-sm shadow-pink-200">
-                0
+                {wishlistItems.length}
               </span>
             </Link>
             <div 
