@@ -1,0 +1,32 @@
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .hoverEffect {
+    @apply duration-300 cursor-pointer;
+  }
+  .headerSedenavLi {
+    @apply hover:underline underline-offset-2 cursor-pointer text-gray-300 hover:text-white;
+  }
+}
+
+/* ============= NavLink active Start here ============== */
+nav .active li {
+  color: #4f46e5; /* brandIndigo */
+  font-weight: 600;
+}
+
+@media screen and (max-width: 665px) {
+  nav .active li {
+    color: #818cf8; /* indigo-400 */
+    font-weight: 600;
+  }
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+/* ============= NavLink active End here ================ */

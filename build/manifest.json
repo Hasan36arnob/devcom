@@ -1,0 +1,30 @@
+{
+  "name": "Devdigitax E-commerce",
+  "short_name": "Devdigitax",
+  "description": "Shop the best deals on fashion, electronics, and more at Devdigitax E-commerce.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#4f46e5",
+  "icons": [
+    {
+      "src": "/smallLogo.ico",
+      "sizes": "64x64",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "/assets/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/assets/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "scope": "/",
+  "orientation": "portrait",
+  "lang": "en-US"
+}
