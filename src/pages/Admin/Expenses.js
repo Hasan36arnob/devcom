@@ -25,6 +25,7 @@ const Expenses = () => {
     'other',
   ];
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     const savedExpenses = AnalyticsService.getExpenses();
     if (savedExpenses.length > 0 && expenses.length === 0) {

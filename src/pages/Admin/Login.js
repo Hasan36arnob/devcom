@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { login } from "../../redux/adminSlice";
+import { setAuth } from "../../redux/adminSlice";
 import { useNavigate } from "react-router-dom";
 import { Lock, User, AlertCircle } from "lucide-react";
 
@@ -38,9 +38,13 @@ const Login = () => {
       return;
     }
 
-    // Validate credentials before dispatching
-    dispatch(login({ username, password }));
-    if (isAuthenticated) {
+    // Simple validation - in production, this should be done via API
+    if (username === "admin" && password === "admin123") {
+      dispatch(setAuth({
+        isAuthenticated: true,
+        token: "mock-token",
+        user: { username, role: "admin" }
+      }));
       navigate("/admin");
     } else {
       setError("Invalid username or password");

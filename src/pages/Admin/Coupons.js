@@ -21,6 +21,7 @@ const Coupons = () => {
     applicableProducts: [],
   });
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     const savedCoupons = CouponService.getCoupons();
     if (savedCoupons.length > 0 && coupons.length === 0) {
