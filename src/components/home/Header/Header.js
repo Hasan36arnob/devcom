@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
-import { MdClose, MdFavorite, MdPerson } from "react-icons/md";
+import { MdClose, MdPerson } from "react-icons/md";
 import { HiMenuAlt2, HiHeart } from "react-icons/hi";
 import { motion, AnimatePresence } from "framer-motion";
 import { navBarList } from "../../../constants";
 import Flex from "../../designLayouts/Flex";
-import { useSelector } from "react-redux";
 
 const Header = () => {
   const [showMenu, setShowMenu] = useState(true);
@@ -14,7 +13,6 @@ const Header = () => {
   const [brand, setBrand] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
-  const cartProducts = useSelector((state) => state.orebiReducer.products);
   useEffect(() => {
     let ResponsiveMenu = () => {
       if (window.innerWidth < 667) {

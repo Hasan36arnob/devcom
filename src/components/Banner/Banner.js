@@ -4,7 +4,6 @@ import Slider from "react-slick";
 import {
   bannerImgOne,
   bannerImgTwo,
-  bannerImgThree,
 } from "../../assets/images";
 import Image from "../designLayouts/Image";
 
