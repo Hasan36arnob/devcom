@@ -35,18 +35,18 @@ const Header = () => {
   }, []);
 
   return (
-    <div className={`w-full h-20 sticky top-0 z-50 transition-all duration-300 ${
+    <div className={`w-full h-16 md:h-20 sticky top-0 z-50 transition-all duration-300 ${
       scrolled ? "bg-white/95 backdrop-blur-md shadow-xl border-b border-gray-100" : "bg-white border-b border-gray-200"
     }`}>
-      <nav className="h-full px-4 max-w-container mx-auto relative">
+      <nav className="h-full px-3 md:px-4 max-w-container mx-auto relative">
         <Flex className="flex items-center justify-between h-full">
-          <Link to="/" className="flex items-center gap-2.5 group">
-            <div className="relative flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-tr from-indigo-600 via-purple-600 to-pink-500 text-white font-bold text-xl shadow-lg shadow-indigo-500/30 group-hover:shadow-indigo-500/50 transition-all duration-300 group-hover:scale-105 group-hover:rotate-3">
+          <Link to="/" className="flex items-center gap-2 md:gap-2.5 group">
+            <div className="relative flex items-center justify-center w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gradient-to-tr from-indigo-600 via-purple-600 to-pink-500 text-white font-bold text-lg md:text-xl shadow-lg shadow-indigo-500/30 group-hover:shadow-indigo-500/50 transition-all duration-300 group-hover:scale-105 group-hover:rotate-3">
               <span className="bg-gradient-to-r from-white to-indigo-100 bg-clip-text text-transparent">D</span>
               <div className="absolute -inset-1 rounded-xl bg-gradient-to-r from-indigo-500 to-pink-500 opacity-0 group-hover:opacity-30 transition-opacity duration-300 blur-md"></div>
             </div>
             <div className="flex flex-col">
-              <span className="font-bold text-2xl tracking-tight bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent font-titleFont group-hover:from-purple-600 group-hover:to-pink-500 transition-all duration-300">
+              <span className="font-bold text-lg md:text-2xl tracking-tight bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent font-titleFont group-hover:from-purple-600 group-hover:to-pink-500 transition-all duration-300 hidden sm:block">
                 Devdigitax E-Commerce
               </span>
               <span className="text-[9px] uppercase tracking-[0.22em] text-purple-600 font-bold -mt-1 font-titleFont">
@@ -88,7 +88,7 @@ const Header = () => {
             )}
             <HiMenuAlt2
               onClick={() => setSidenav(!sidenav)}
-              className="inline-block md:hidden cursor-pointer w-8 h-6 absolute top-6 right-4 text-indigo-600 hover:text-indigo-700 transition-colors hover:scale-110 transform"
+              className="inline-block md:hidden cursor-pointer w-8 h-8 absolute top-4 right-3 text-indigo-600 hover:text-indigo-700 transition-colors hover:scale-110 transform p-1"
             />
             <AnimatePresence>
               {sidenav && (
@@ -98,23 +98,23 @@ const Header = () => {
                     animate={{ x: 0, opacity: 1 }}
                     exit={{ x: -300, opacity: 0 }}
                     transition={{ duration: 0.3, ease: "easeInOut" }}
-                    className="w-[80%] h-full relative"
+                    className="w-[85%] h-full relative"
                   >
-                    <div className="w-full h-full bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 p-6">
-                      <Link to="/" onClick={() => setSidenav(false)} className="flex items-center gap-2 group mb-8">
-                        <div className="relative flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-tr from-indigo-500 to-pink-500 text-white font-bold text-xl shadow-lg">
+                    <div className="w-full h-full bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 p-4 md:p-6">
+                      <Link to="/" onClick={() => setSidenav(false)} className="flex items-center gap-2 group mb-6">
+                        <div className="relative flex items-center justify-center w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gradient-to-tr from-indigo-500 to-pink-500 text-white font-bold text-lg md:text-xl shadow-lg">
                           <span>D</span>
                         </div>
                         <div className="flex flex-col">
-                          <span className="font-bold text-2xl tracking-tight text-white font-titleFont">
-                            Devdigitax E-Commerce
+                          <span className="font-bold text-xl md:text-2xl tracking-tight text-white font-titleFont">
+                            Devdigitax
                           </span>
                           <span className="text-[10px] uppercase tracking-[0.2em] text-indigo-300 font-semibold -mt-1 font-titleFont">
                           
                           </span>
                         </div>
                       </Link>
-                      <ul className="text-white flex flex-col gap-1">
+                      <ul className="text-white flex flex-col gap-2">
                         {navBarList.map((item) => (
                           <li key={item._id}>
                             <NavLink
@@ -122,7 +122,7 @@ const Header = () => {
                               state={{ data: location.pathname.split("/")[1] }}
                               onClick={() => setSidenav(false)}
                               className={({ isActive }) => 
-                                `block py-3 px-4 rounded-lg transition-all duration-200 ${
+                                `block py-4 px-4 rounded-xl transition-all duration-200 text-base ${
                                   isActive 
                                     ? "bg-white/20 text-white font-semibold" 
                                     : "text-gray-300 hover:bg-white/10 hover:text-white"
@@ -137,7 +137,7 @@ const Header = () => {
                     <div className="mt-6">
                       <h1
                         onClick={() => setCategory(!category)}
-                        className="flex justify-between text-base cursor-pointer items-center font-titleFont mb-3 text-white font-semibold"
+                        className="flex justify-between text-base cursor-pointer items-center font-titleFont mb-4 text-white font-semibold"
                       >
                         Shop by Category{" "}
                         <motion.span 
@@ -158,7 +158,7 @@ const Header = () => {
                             className="text-sm flex flex-col gap-1 overflow-hidden"
                           >
                             {['New Arrivals', 'Gadgets', 'Accessories', 'Electronics', 'Clothing'].map((cat) => (
-                              <li key={cat} className="py-2 px-4 text-gray-300 hover:text-white hover:bg-white/10 rounded-lg cursor-pointer transition-all">
+                              <li key={cat} className="py-3 px-4 text-gray-300 hover:text-white hover:bg-white/10 rounded-lg cursor-pointer transition-all">
                                 {cat}
                               </li>
                             ))}
@@ -169,7 +169,7 @@ const Header = () => {
                     <div className="mt-6">
                       <h1
                         onClick={() => setBrand(!brand)}
-                        className="flex justify-between text-base cursor-pointer items-center font-titleFont mb-3 text-white font-semibold"
+                        className="flex justify-between text-base cursor-pointer items-center font-titleFont mb-4 text-white font-semibold"
                       >
                         Shop by Brand
                         <motion.span 
@@ -190,7 +190,7 @@ const Header = () => {
                             className="text-sm flex flex-col gap-1 overflow-hidden"
                           >
                             {['Nike', 'Adidas', 'Apple', 'Samsung', 'Sony'].map((brand) => (
-                              <li key={brand} className="py-2 px-4 text-gray-300 hover:text-white hover:bg-white/10 rounded-lg cursor-pointer transition-all">
+                              <li key={brand} className="py-3 px-4 text-gray-300 hover:text-white hover:bg-white/10 rounded-lg cursor-pointer transition-all">
                                 {brand}
                               </li>
                             ))}
@@ -198,16 +198,16 @@ const Header = () => {
                         )}
                       </AnimatePresence>
                     </div>
-                    <div className="absolute bottom-6 left-6 right-6">
+                    <div className="absolute bottom-6 left-4 right-4">
                       <div className="bg-white/10 backdrop-blur-md rounded-xl p-4 border border-white/20">
-                        <div className="flex items-center justify-between text-white">
-                          <div className="flex items-center gap-3">
-                            <MdPerson className="w-5 h-5" />
-                            <span className="text-sm font-medium">Account</span>
+                        <div className="flex items-center justify-around text-white">
+                          <div className="flex flex-col items-center gap-2">
+                            <MdPerson className="w-6 h-6" />
+                            <span className="text-xs font-medium">Account</span>
                           </div>
-                          <div className="flex items-center gap-3">
-                            <HiHeart className="w-5 h-5" />
-                            <span className="text-sm font-medium">Wishlist</span>
+                          <div className="flex flex-col items-center gap-2">
+                            <HiHeart className="w-6 h-6" />
+                            <span className="text-xs font-medium">Wishlist</span>
                           </div>
                         </div>
                       </div>
@@ -218,7 +218,7 @@ const Header = () => {
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     onClick={() => setSidenav(false)}
-                    className="w-10 h-10 bg-white/20 backdrop-blur-md rounded-full absolute top-4 -right-14 text-white text-2xl flex justify-center items-center cursor-pointer hover:bg-white/30 transition-all duration-300 shadow-lg"
+                    className="w-12 h-12 bg-white/20 backdrop-blur-md rounded-full absolute top-4 -right-16 text-white text-2xl flex justify-center items-center cursor-pointer hover:bg-white/30 transition-all duration-300 shadow-lg"
                   >
                     <MdClose />
                   </motion.button>

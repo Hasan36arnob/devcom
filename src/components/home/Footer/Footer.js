@@ -43,7 +43,7 @@ const Footer = () => {
                 target="_blank"
                 rel="noreferrer"
               >
-                <li className="w-7 h-7 bg-primeColor text-gray-100 hover:text-white cursor-pointer text-lg rounded-full flex justify-center items-center hover:bg-black duration-300">
+                <li className="w-9 h-9 md:w-7 md:h-7 bg-primeColor text-gray-100 hover:text-white cursor-pointer text-lg rounded-full flex justify-center items-center hover:bg-black duration-300">
                   <FaYoutube />
                 </li>
               </a>
@@ -52,7 +52,7 @@ const Footer = () => {
                 target="_blank"
                 rel="noreferrer"
               >
-                <li className="w-7 h-7 bg-primeColor text-gray-100 hover:text-white cursor-pointer text-lg rounded-full flex justify-center items-center hover:bg-black duration-300">
+                <li className="w-9 h-9 md:w-7 md:h-7 bg-primeColor text-gray-100 hover:text-white cursor-pointer text-lg rounded-full flex justify-center items-center hover:bg-black duration-300">
                   <FaGithub />
                 </li>
               </a>
@@ -61,7 +61,7 @@ const Footer = () => {
                 target="_blank"
                 rel="noreferrer"
               >
-                <li className="w-7 h-7 bg-primeColor text-gray-100 hover:text-white cursor-pointer text-lg rounded-full flex justify-center items-center hover:bg-black duration-300">
+                <li className="w-9 h-9 md:w-7 md:h-7 bg-primeColor text-gray-100 hover:text-white cursor-pointer text-lg rounded-full flex justify-center items-center hover:bg-black duration-300">
                   <FaFacebook />
                 </li>
               </a>
@@ -70,7 +70,7 @@ const Footer = () => {
                 target="_blank"
                 rel="noreferrer"
               >
-                <li className="w-7 h-7 bg-primeColor text-gray-100 hover:text-white cursor-pointer text-lg rounded-full flex justify-center items-center hover:bg-black duration-300">
+                <li className="w-9 h-9 md:w-7 md:h-7 bg-primeColor text-gray-100 hover:text-white cursor-pointer text-lg rounded-full flex justify-center items-center hover:bg-black duration-300">
                   <FaLinkedin />
                 </li>
               </a>
@@ -80,19 +80,19 @@ const Footer = () => {
         <div>
           <FooterListTitle title="Shop" />
           <ul className="flex flex-col gap-2">
-            <li className="font-titleFont text-base text-lightText hover:text-black hover:underline decoration-[1px] decoration-gray-500 underline-offset-2 cursor-pointer duration-300">
+            <li className="font-titleFont text-sm md:text-base text-lightText hover:text-black hover:underline decoration-[1px] decoration-gray-500 underline-offset-2 cursor-pointer duration-300 py-1">
               Accesories
             </li>
-            <li className="font-titleFont text-base text-lightText hover:text-black hover:underline decoration-[1px] decoration-gray-500 underline-offset-2 cursor-pointer duration-300">
+            <li className="font-titleFont text-sm md:text-base text-lightText hover:text-black hover:underline decoration-[1px] decoration-gray-500 underline-offset-2 cursor-pointer duration-300 py-1">
               Clothes
             </li>
-            <li className="font-titleFont text-base text-lightText hover:text-black hover:underline decoration-[1px] decoration-gray-500 underline-offset-2 cursor-pointer duration-300">
+            <li className="font-titleFont text-sm md:text-base text-lightText hover:text-black hover:underline decoration-[1px] decoration-gray-500 underline-offset-2 cursor-pointer duration-300 py-1">
               Electronics
             </li>
-            <li className="font-titleFont text-base text-lightText hover:text-black hover:underline decoration-[1px] decoration-gray-500 underline-offset-2 cursor-pointer duration-300">
+            <li className="font-titleFont text-sm md:text-base text-lightText hover:text-black hover:underline decoration-[1px] decoration-gray-500 underline-offset-2 cursor-pointer duration-300 py-1">
               Home appliances
             </li>
-            <li className="font-titleFont text-base text-lightText hover:text-black hover:underline decoration-[1px] decoration-gray-500 underline-offset-2 cursor-pointer duration-300">
+            <li className="font-titleFont text-sm md:text-base text-lightText hover:text-black hover:underline decoration-[1px] decoration-gray-500 underline-offset-2 cursor-pointer duration-300 py-1">
               New Arrivals
             </li>
           </ul>
@@ -100,19 +100,19 @@ const Footer = () => {
          <div>
            <FooterListTitle title="Your account" />
            <ul className="flex flex-col gap-2">
-             <li className="font-titleFont text-base text-lightText hover:text-black hover:underline decoration-[1px] decoration-gray-500 underline-offset-2 cursor-pointer duration-300">
+             <li className="font-titleFont text-sm md:text-base text-lightText hover:text-black hover:underline decoration-[1px] decoration-gray-500 underline-offset-2 cursor-pointer duration-300 py-1">
                Profile
              </li>
-             <li className="font-titleFont text-base text-lightText hover:text-black hover:underline decoration-[1px] decoration-gray-500 underline-offset-2 cursor-pointer duration-300">
+             <li className="font-titleFont text-sm md:text-base text-lightText hover:text-black hover:underline decoration-[1px] decoration-gray-500 underline-offset-2 cursor-pointer duration-300 py-1">
                Orders
              </li>
-             <li className="font-titleFont text-base text-lightText hover:text-black hover:underline decoration-[1px] decoration-gray-500 underline-offset-2 cursor-pointer duration-300">
+             <li className="font-titleFont text-sm md:text-base text-lightText hover:text-black hover:underline decoration-[1px] decoration-gray-500 underline-offset-2 cursor-pointer duration-300 py-1">
                Addresses
              </li>
-             <li className="font-titleFont text-base text-lightText hover:text-black hover:underline decoration-[1px] decoration-gray-500 underline-offset-2 cursor-pointer duration-300">
+             <li className="font-titleFont text-sm md:text-base text-lightText hover:text-black hover:underline decoration-[1px] decoration-gray-500 underline-offset-2 cursor-pointer duration-300 py-1">
                Account Details
              </li>
-             <li className="font-titleFont text-base text-lightText hover:text-black hover:underline decoration-[1px] decoration-gray-500 underline-offset-2 cursor-pointer duration-300">
+             <li className="font-titleFont text-sm md:text-base text-lightText hover:text-black hover:underline decoration-[1px] decoration-gray-500 underline-offset-2 cursor-pointer duration-300 py-1">
                Payment Options
              </li>
            </ul>
@@ -120,15 +120,15 @@ const Footer = () => {
          <div>
            <FooterListTitle title="Admin" />
            <ul className="flex flex-col gap-2">
-             <li className="font-titleFont text-base text-lightText hover:text-black hover:underline decoration-[1px] decoration-gray-500 underline-offset-2 cursor-pointer duration-300">
+             <li className="font-titleFont text-sm md:text-base text-lightText hover:text-black hover:underline decoration-[1px] decoration-gray-500 underline-offset-2 cursor-pointer duration-300 py-1">
                <a href="/admin/login" className="block w-full">Admin Panel</a>
              </li>
            </ul>
          </div>
-         <div className="col-span-2 flex flex-col items-center w-full px-4">
+         <div className="col-span-1 md:col-span-2 flex flex-col items-center w-full px-4">
           <FooterListTitle title="Subscribe to our newsletter." />
           <div className="w-full">
-            <p className="text-center mb-4">
+            <p className="text-center mb-4 text-sm md:text-base">
               A at pellentesque et mattis porta enim elementum.
             </p>
             {subscription ? (
@@ -136,7 +136,7 @@ const Footer = () => {
                 initial={{ x: 20, opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
                 transition={{ duration: 0.5 }}
-                className="w-full text-center text-base font-titleFont font-semibold text-green-600"
+                className="w-full text-center text-sm md:text-base font-titleFont font-semibold text-green-600"
               >
                 Subscribed Successfully !
               </motion.p>
@@ -146,7 +146,7 @@ const Footer = () => {
                   <input
                     onChange={(e) => setEmailInfo(e.target.value)}
                     value={emailInfo}
-                    className="w-full h-12 bg-white/70 border border-gray-200 focus:border-brandIndigo focus:ring-2 focus:ring-indigo-100 rounded-lg px-4 text-slate-800 text-base placeholder:text-gray-400 outline-none transition-all duration-300"
+                    className="w-full h-12 bg-white/70 border border-gray-200 focus:border-brandIndigo focus:ring-2 focus:ring-indigo-100 rounded-lg px-4 text-slate-800 text-sm md:text-base placeholder:text-gray-400 outline-none transition-all duration-300"
                     type="text"
                     placeholder="Insert your email ...*"
                   />
@@ -158,7 +158,7 @@ const Footer = () => {
                 </div>
                 <button
                   onClick={handleSubscription}
-                  className="bg-brandIndigo text-white w-full xl:w-[30%] h-12 rounded-lg hover:bg-slate-900 duration-300 text-sm font-semibold tracking-wide shadow-md shadow-indigo-100 hover:shadow-none"
+                  className="bg-brandIndigo text-white w-full xl:w-[30%] h-12 rounded-lg hover:bg-slate-900 duration-300 text-sm md:text-sm font-semibold tracking-wide shadow-md shadow-indigo-100 hover:shadow-none"
                 >
                   Subscribe
                 </button>
@@ -166,7 +166,7 @@ const Footer = () => {
             )}
 
             <Image
-              className={`w-[80%] lg:w-[60%] mx-auto ${
+              className={`w-[90%] md:w-[80%] lg:w-[60%] mx-auto ${
                 subscription ? "mt-2" : "mt-6"
               }`}
               imgSrc={paymentCard}

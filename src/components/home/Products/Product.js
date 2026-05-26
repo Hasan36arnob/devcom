@@ -59,15 +59,15 @@ const Product = (props) => {
         </div>
 
         {/* Badge */}
-        <div className="absolute top-4 left-4">
+        <div className="absolute top-3 left-3 md:top-4 md:left-4">
           {props.badge && <Badge text="New" />}
         </div>
 
         {/* Heart Icon */}
-        <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-all duration-500 transform translate-x-4 group-hover:translate-x-0">
+        <div className="absolute top-3 right-3 md:top-4 md:right-4 opacity-100 md:opacity-0 group-hover:opacity-100 transition-all duration-500 transform md:translate-x-4 md:group-hover:translate-x-0">
           <div 
             onClick={handleWishlistToggle}
-            className="bg-white/90 backdrop-blur-md rounded-full p-2 shadow-lg hover:bg-white transition-colors cursor-pointer"
+            className="bg-white/90 backdrop-blur-md rounded-full p-2.5 shadow-lg hover:bg-white transition-colors cursor-pointer"
           >
             {isInWishlist ? (
               <BsSuitHeartFill className="w-5 h-5 text-pink-500 transition-colors" />
@@ -121,17 +121,17 @@ const Product = (props) => {
       </div>
 
       {/* Info Box */}
-      <div className="w-full py-4 flex flex-col gap-2 px-3 bg-gradient-to-br from-white to-gray-50 rounded-b-2xl border border-t-0 border-gray-100 shadow-sm group-hover:shadow-lg transition-all duration-500">
+      <div className="w-full py-3 md:py-4 flex flex-col gap-2 px-3 bg-gradient-to-br from-white to-gray-50 rounded-b-2xl border border-t-0 border-gray-100 shadow-sm group-hover:shadow-lg transition-all duration-500">
         <div className="flex items-center justify-between font-titleFont">
-          <h2 className="text-base font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent truncate pr-2">
+          <h2 className="text-sm md:text-base font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent truncate pr-2">
             {props.productName}
           </h2>
-          <p className="text-base font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent whitespace-nowrap">
+          <p className="text-sm md:text-base font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent whitespace-nowrap">
             ${typeof props.price === "number" ? props.price.toFixed(2) : props.price}
           </p>
         </div>
         <div className="flex items-center justify-between">
-          <p className="text-sm text-gray-500 font-medium truncate">{props.color}</p>
+          <p className="text-xs md:text-sm text-gray-500 font-medium truncate">{props.color}</p>
           <div className="flex items-center gap-1 shrink-0">
             <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
             <span className="text-xs text-green-600 font-semibold">In Stock</span>
