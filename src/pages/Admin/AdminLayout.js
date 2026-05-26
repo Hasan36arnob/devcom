@@ -12,6 +12,9 @@ import {
   LogOut,
   Menu,
   X,
+  Ticket,
+  DollarSign,
+  UserCog,
 } from "lucide-react";
 
 const AdminLayout = () => {
@@ -31,6 +34,9 @@ const AdminLayout = () => {
     { icon: ShoppingCart, label: "Orders", path: "/admin/orders" },
     { icon: Tag, label: "Categories", path: "/admin/categories" },
     { icon: Users, label: "Customers", path: "/admin/customers" },
+    { icon: Ticket, label: "Coupons", path: "/admin/coupons" },
+    { icon: DollarSign, label: "Expenses", path: "/admin/expenses" },
+    { icon: UserCog, label: "Users", path: "/admin/users" },
     { icon: Settings, label: "Settings", path: "/admin/settings" },
   ];
 

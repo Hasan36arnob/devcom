@@ -154,16 +154,19 @@ const initialState = {
     },
   ],
   categories: [
-    "men's clothing",
-    "women's clothing",
-    "jewelery",
-    "electronics",
+    { id: "cat1", name: "men's clothing", subcategories: ["Shirts", "Pants", "Jackets", "Accessories"] },
+    { id: "cat2", name: "women's clothing", subcategories: ["Dresses", "Tops", "Skirts", "Accessories"] },
+    { id: "cat3", name: "jewelery", subcategories: ["Necklaces", "Earrings", "Bracelets", "Rings"] },
+    { id: "cat4", name: "electronics", subcategories: ["Phones", "Laptops", "Headphones", "Cameras"] },
   ],
   orders: [
     {
       _id: "ORD001",
       customerName: "John Doe",
       customerEmail: "john@example.com",
+      customerPhone: "+8801700000000",
+      customerAddress: "Dhaka, Bangladesh",
+      billingAddress: "Dhaka, Bangladesh",
       items: [
         {
           _id: "1",
@@ -172,14 +175,29 @@ const initialState = {
           quantity: 2,
         },
       ],
-      total: 219.9,
+      subtotal: 219.9,
+      shippingCost: 60,
+      discount: 0,
+      tax: 0,
+      total: 279.9,
       status: "pending",
+      paymentMethod: "COD",
+      paymentStatus: "Pending",
+      paymentGateway: null,
+      transactionId: null,
+      courier: "steadfast",
+      trackingNumber: null,
+      invoiceNumber: null,
+      isComplete: true,
       createdAt: new Date().toISOString(),
     },
     {
       _id: "ORD002",
       customerName: "Jane Smith",
       customerEmail: "jane@example.com",
+      customerPhone: "+8801800000000",
+      customerAddress: "Chittagong, Bangladesh",
+      billingAddress: "Chittagong, Bangladesh",
       items: [
         {
           _id: "2",
@@ -188,9 +206,66 @@ const initialState = {
           quantity: 3,
         },
       ],
-      total: 66.9,
+      subtotal: 66.9,
+      shippingCost: 120,
+      discount: 0,
+      tax: 0,
+      total: 186.9,
       status: "shipped",
+      paymentMethod: "bkash",
+      paymentStatus: "Paid",
+      paymentGateway: "bkash",
+      transactionId: "TXN123456",
+      courier: "redx",
+      trackingNumber: "REDX123456",
+      invoiceNumber: "INV-20240101-0001",
+      isComplete: true,
       createdAt: new Date(Date.now() - 86400000).toISOString(),
+    },
+    {
+      _id: "ORD003",
+      customerName: "Incomplete Order",
+      customerEmail: "incomplete@example.com",
+      customerPhone: "+8801900000000",
+      customerAddress: "Sylhet, Bangladesh",
+      billingAddress: "Sylhet, Bangladesh",
+      items: [
+        {
+          _id: "3",
+          productName: "Sample Product",
+          price: 100,
+          quantity: 1,
+        },
+      ],
+      subtotal: 100,
+      shippingCost: 0,
+      discount: 0,
+      tax: 0,
+      total: 100,
+      status: "incomplete",
+      paymentMethod: null,
+      paymentStatus: "Pending",
+      paymentGateway: null,
+      transactionId: null,
+      courier: null,
+      trackingNumber: null,
+      invoiceNumber: null,
+      isComplete: false,
+      createdAt: new Date(Date.now() - 172800000).toISOString(),
+    },
+  ],
+  coupons: [],
+  expenses: [],
+  users: [
+    {
+      id: "admin1",
+      username: "admin",
+      email: "admin@example.com",
+      role: "admin",
+      fullName: "Super Admin",
+      phone: "+8801700000000",
+      isActive: true,
+      createdAt: new Date().toISOString(),
     },
   ],
   stats: {
@@ -272,6 +347,74 @@ export const adminSlice = createSlice({
       state.orders = state.orders.filter((o) => o._id !== action.payload);
       state.stats.totalOrders = state.orders.length;
     },
+    addCoupon: (state, action) => {
+      const newCoupon = {
+        id: Date.now().toString(),
+        ...action.payload,
+        createdAt: new Date().toISOString(),
+      };
+      state.coupons.push(newCoupon);
+    },
+    updateCoupon: (state, action) => {
+      const index = state.coupons.findIndex((c) => c.id === action.payload.id);
+      if (index !== -1) {
+        state.coupons[index] = { ...state.coupons[index], ...action.payload };
+      }
+    },
+    deleteCoupon: (state, action) => {
+      state.coupons = state.coupons.filter((c) => c.id !== action.payload);
+    },
+    addExpense: (state, action) => {
+      const newExpense = {
+        id: Date.now().toString(),
+        ...action.payload,
+        date: action.payload.date || new Date().toISOString(),
+        createdAt: new Date().toISOString(),
+      };
+      state.expenses.push(newExpense);
+    },
+    deleteExpense: (state, action) => {
+      state.expenses = state.expenses.filter((e) => e.id !== action.payload);
+    },
+    addUser: (state, action) => {
+      const newUser = {
+        id: Date.now().toString(),
+        ...action.payload,
+        createdAt: new Date().toISOString(),
+        lastLogin: null,
+      };
+      state.users.push(newUser);
+    },
+    updateUser: (state, action) => {
+      const index = state.users.findIndex((u) => u.id === action.payload.id);
+      if (index !== -1) {
+        state.users[index] = { ...state.users[index], ...action.payload };
+      }
+    },
+    deleteUser: (state, action) => {
+      state.users = state.users.filter((u) => u.id !== action.payload);
+    },
+    addSubcategory: (state, action) => {
+      const { categoryId, subcategory } = action.payload;
+      const category = state.categories.find((c) => c.id === categoryId);
+      if (category && !category.subcategories.includes(subcategory)) {
+        category.subcategories.push(subcategory);
+      }
+    },
+    removeSubcategory: (state, action) => {
+      const { categoryId, subcategory } = action.payload;
+      const category = state.categories.find((c) => c.id === categoryId);
+      if (category) {
+        category.subcategories = category.subcategories.filter((s) => s !== subcategory);
+      }
+    },
+    updateProductStock: (state, action) => {
+      const { productId, quantity } = action.payload;
+      const product = state.products.find((p) => p._id === productId);
+      if (product) {
+        product.stock = quantity;
+      }
+    },
   },
 });
 
@@ -285,6 +428,17 @@ export const {
   deleteCategory,
   updateOrderStatus,
   deleteOrder,
+  addCoupon,
+  updateCoupon,
+  deleteCoupon,
+  addExpense,
+  deleteExpense,
+  addUser,
+  updateUser,
+  deleteUser,
+  addSubcategory,
+  removeSubcategory,
+  updateProductStock,
 } = adminSlice.actions;
 
 export default adminSlice.reducer;

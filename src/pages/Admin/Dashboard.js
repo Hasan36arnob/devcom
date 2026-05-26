@@ -1,14 +1,48 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import {
   Package,
   ShoppingCart,
   DollarSign,
   AlertCircle,
+  TrendingUp,
+  Users,
+  ArrowUp,
+  ArrowDown,
 } from "lucide-react";
+import { AnalyticsService } from "../../services/analyticsService";
 
 const Dashboard = () => {
-  const { stats, products, orders } = useSelector((state) => state.adminReducer);
+  const { stats, products, orders, expenses } = useSelector((state) => state.adminReducer);
+  const [dashboardStats, setDashboardStats] = useState(null);
+  const [profitLoss, setProfitLoss] = useState(null);
+  const [customerStats, setCustomerStats] = useState(null);
+
+  useEffect(() => {
+    const loadDashboardStats = () => {
+      const stats = AnalyticsService.getDashboardStats();
+      setDashboardStats(stats);
+
+      const today = new Date();
+      const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+      const profitLossReport = AnalyticsService.getProfitLossReport(
+        startOfMonth.toISOString(),
+        today.toISOString()
+      );
+      setProfitLoss(profitLossReport);
+
+      const customerReport = AnalyticsService.getCustomerReport(
+        startOfMonth.toISOString(),
+        today.toISOString()
+      );
+      setCustomerStats(customerReport);
+    };
+
+    loadDashboardStats();
+    const interval = setInterval(loadDashboardStats, 30000); // Refresh every 30 seconds
+
+    return () => clearInterval(interval);
+  }, [orders, expenses]);
 
   const statCards = [
     {
@@ -27,7 +61,7 @@ const Dashboard = () => {
     },
     {
       title: "Total Revenue",
-      value: `$${stats.totalRevenue.toFixed(2)}`,
+      value: `${stats.totalRevenue.toFixed(2)} BDT`,
       icon: DollarSign,
       color: "bg-purple-500",
       trend: "+23%",
@@ -38,6 +72,33 @@ const Dashboard = () => {
       icon: AlertCircle,
       color: "bg-orange-500",
       trend: "Action needed",
+    },
+  ];
+
+  const additionalStats = [
+    {
+      title: "Today's Revenue",
+      value: dashboardStats ? `${dashboardStats.todayRevenue.toFixed(2)} BDT` : '0 BDT',
+      icon: TrendingUp,
+      color: "bg-green-500",
+    },
+    {
+      title: "Month Revenue",
+      value: dashboardStats ? `${dashboardStats.monthRevenue.toFixed(2)} BDT` : '0 BDT',
+      icon: DollarSign,
+      color: "bg-blue-500",
+    },
+    {
+      title: "Total Customers",
+      value: customerStats ? customerStats.totalCustomers : 0,
+      icon: Users,
+      color: "bg-purple-500",
+    },
+    {
+      title: "Net Profit",
+      value: profitLoss ? `${profitLoss.netProfit.toFixed(2)} BDT` : '0 BDT',
+      icon: profitLoss?.isProfitable ? ArrowUp : ArrowDown,
+      color: profitLoss?.isProfitable ? "bg-green-500" : "bg-red-500",
     },
   ];
 
@@ -78,7 +139,34 @@ const Dashboard = () => {
         })}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* Additional Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {additionalStats.map((stat, index) => {
+          const Icon = stat.icon;
+          return (
+            <div
+              key={index}
+              className="bg-white rounded-xl shadow-sm p-6 border border-gray-100"
+            >
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">
+                    {stat.title}
+                  </p>
+                  <p className="text-2xl font-bold text-gray-900 mt-2">
+                    {stat.value}
+                  </p>
+                </div>
+                <div className={`${stat.color} p-3 rounded-lg`}>
+                  <Icon className="w-6 h-6 text-white" />
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Recent Orders */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-100">
           <div className="p-6 border-b border-gray-100">
@@ -104,7 +192,7 @@ const Dashboard = () => {
                     </div>
                     <div className="text-right">
                       <p className="font-semibold text-gray-900">
-                        ${order.total.toFixed(2)}
+                        {order.total.toFixed(2)} BDT
                       </p>
                       <span
                         className={`inline-block px-2 py-1 text-xs rounded-full ${
@@ -158,12 +246,53 @@ const Dashboard = () => {
                       </p>
                     </div>
                     <p className="font-semibold text-gray-900">
-                      ${product.price}
+                      {product.price} BDT
                     </p>
                   </div>
                 ))}
               </div>
             )}
+          </div>
+        </div>
+
+        {/* Analytics Summary */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100">
+          <div className="p-6 border-b border-gray-100">
+            <h2 className="text-lg font-semibold text-gray-900">
+              Analytics Summary
+            </h2>
+          </div>
+          <div className="p-6 space-y-4">
+            <div className="flex justify-between items-center">
+              <span className="text-gray-600">Profit Margin</span>
+              <span className="font-semibold text-gray-900">
+                {profitLoss ? `${profitLoss.profitMargin.toFixed(1)}%` : '0%'}
+              </span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-gray-600">Customer Retention</span>
+              <span className="font-semibold text-gray-900">
+                {customerStats ? `${customerStats.customerRetentionRate.toFixed(1)}%` : '0%'}
+              </span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-gray-600">Repeat Customers</span>
+              <span className="font-semibold text-gray-900">
+                {customerStats?.repeatCustomers || 0}
+              </span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-gray-600">Low Stock Items</span>
+              <span className="font-semibold text-orange-600">
+                {dashboardStats?.lowStockProducts || 0}
+              </span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-gray-600">Processing Orders</span>
+              <span className="font-semibold text-blue-600">
+                {dashboardStats?.processingOrders || 0}
+              </span>
+            </div>
           </div>
         </div>
       </div>

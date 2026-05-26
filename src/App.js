@@ -30,6 +30,9 @@ import Orders from "./pages/Admin/Orders";
 import Categories from "./pages/Admin/Categories";
 import Customers from "./pages/Admin/Customers";
 import Settings from "./pages/Admin/Settings";
+import Coupons from "./pages/Admin/Coupons";
+import Expenses from "./pages/Admin/Expenses";
+import UserManagement from "./pages/Admin/UserManagement";
 import Login from "./pages/Admin/Login";
 import AdminProtectedRoute from "./components/AdminProtectedRoute";
 
@@ -81,6 +84,9 @@ const router = createBrowserRouter(
         <Route path="categories" element={<Categories />}></Route>
         <Route path="customers" element={<Customers />}></Route>
         <Route path="settings" element={<Settings />}></Route>
+        <Route path="coupons" element={<Coupons />}></Route>
+        <Route path="expenses" element={<Expenses />}></Route>
+        <Route path="users" element={<UserManagement />}></Route>
       </Route>
     </Route>
   )
