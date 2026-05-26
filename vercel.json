@@ -1,0 +1,61 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "build"
+      }
+    },
+    {
+      "src": "api/**/*.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
+  ],
+  "env": {
+    "SSLCOMMERZ_STORE_ID": "@sscommerz-store-id",
+    "SSLCOMMERZ_STORE_PASSWORD": "@sscommerz-store-password",
+    "SSLCOMMERZ_SANDBOX": "@sscommerz-sandbox",
+    "BKASH_APP_KEY": "@bkash-app-key",
+    "BKASH_APP_SECRET": "@bkash-app-secret",
+    "BKASH_REFRESH_TOKEN": "@bkash-refresh-token",
+    "BKASH_SANDBOX": "@bkash-sandbox",
+    "NAGAD_MERCHANT_ID": "@nagad-merchant-id",
+    "NAGAD_MERCHANT_ACCOUNT": "@nagad-merchant-account",
+    "NAGAD_PUBLIC_KEY": "@nagad-public-key",
+    "NAGAD_PRIVATE_KEY": "@nagad-private-key",
+    "NAGAD_SANDBOX": "@nagad-sandbox",
+    "ROCKET_MERCHANT_ID": "@rocket-merchant-id",
+    "ROCKET_MERCHANT_ACCOUNT": "@rocket-merchant-account",
+    "ROCKET_API_KEY": "@rocket-api-key",
+    "ROCKET_SANDBOX": "@rocket-sandbox",
+    "STEADFAST_API_KEY": "@steadfast-api-key",
+    "STEADFAST_SECRET_KEY": "@steadfast-secret-key",
+    "STEADFAST_SANDBOX": "@steadfast-sandbox",
+    "REDX_API_KEY": "@redx-api-key",
+    "REDX_API_SECRET": "@redx-api-secret",
+    "REDX_SANDBOX": "@redx-sandbox",
+    "PATHAO_CLIENT_ID": "@pathao-client-id",
+    "PATHAO_CLIENT_SECRET": "@pathao-client-secret",
+    "PATHAO_SANDBOX": "@pathao-sandbox",
+    "STORE_NAME": "@store-name",
+    "SITE_URL": "@site-url"
+  },
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "/api/:path*"
+    }
+  ]
+}
