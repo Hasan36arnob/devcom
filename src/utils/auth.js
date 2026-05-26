@@ -1,4 +1,5 @@
 // JWT-based Authentication using API
+import { useState, useEffect } from 'react';
 import { api } from './apiHelper';
 
 const STORAGE_KEY = 'admin_auth';
@@ -138,10 +139,10 @@ export const requireAuth = () => {
  * Hook for React components to use authentication
  */
 export const useAuth = () => {
-  const [user, setUser] = React.useState(null);
-  const [loading, setLoading] = React.useState(true);
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const checkAuth = async () => {
       if (isAuthenticated()) {
         // Verify token with API

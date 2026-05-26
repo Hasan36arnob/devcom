@@ -17,6 +17,7 @@ const UserManagement = () => {
     role: 'staff',
   });
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     const savedUsers = RoleService.getUsers();
     if (savedUsers.length > 0 && users.length === 0) {
