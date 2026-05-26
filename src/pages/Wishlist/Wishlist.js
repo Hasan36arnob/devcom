@@ -7,7 +7,7 @@ import { removeFromWishlist } from "../../redux/orebiSlice";
 
 const Wishlist = () => {
   const dispatch = useDispatch();
-  const wishlistItems = useSelector((state) => state.orebiReducer.wishlist || []);
+  const wishlistItems = useSelector((state) => state.orebiReducer?.wishlist || []);
 
   const handleRemove = (itemId) => {
     dispatch(removeFromWishlist(itemId));

@@ -11,7 +11,7 @@ import { addToCart, addToWishlist, removeFromWishlist } from "../../../redux/ore
 
 const Product = (props) => {
   const dispatch = useDispatch();
-  const wishlistItems = useSelector((state) => state.orebiReducer.wishlist || []);
+  const wishlistItems = useSelector((state) => state.orebiReducer?.wishlist || []);
   const _id = props.productName;
   const idString = (_id) => {
     return String(_id).toLowerCase().split(" ").join("");
