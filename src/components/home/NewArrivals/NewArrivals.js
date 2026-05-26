@@ -24,7 +24,7 @@ const NewArrivals = () => {
     pauseOnHover: true,
     nextArrow: <SampleNextArrow />,
     prevArrow: <SamplePrevArrow />,
-    dots: true,
+    dots: false, // Changed from true to false to remove the vertical numbers list
     responsive: [
       {
         breakpoint: 1280,
