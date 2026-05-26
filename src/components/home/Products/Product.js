@@ -1,16 +1,17 @@
 import React from "react";
-import { BsSuitHeartFill } from "react-icons/bs";
+import { BsSuitHeartFill, BsSuitHeart } from "react-icons/bs";
 import { GiReturnArrow } from "react-icons/gi";
 import { FaShoppingCart } from "react-icons/fa";
 import { MdOutlineLabelImportant } from "react-icons/md";
 import Image from "../../designLayouts/Image";
 import Badge from "./Badge";
 import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
-import { addToCart } from "../../../redux/orebiSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { addToCart, addToWishlist, removeFromWishlist } from "../../../redux/orebiSlice";
 
 const Product = (props) => {
   const dispatch = useDispatch();
+  const wishlistItems = useSelector((state) => state.orebiReducer.wishlist || []);
   const _id = props.productName;
   const idString = (_id) => {
     return String(_id).toLowerCase().split(" ").join("");
@@ -25,6 +26,27 @@ const Product = (props) => {
         item: productItem,
       },
     });
+  };
+
+  const isInWishlist = wishlistItems.some((item) => item._id === props._id);
+
+  const handleWishlistToggle = (e) => {
+    e.stopPropagation();
+    if (isInWishlist) {
+      dispatch(removeFromWishlist(props._id));
+    } else {
+      dispatch(
+        addToWishlist({
+          _id: props._id,
+          productName: props.productName,
+          price: props.price,
+          img: props.img,
+          des: props.des,
+          color: props.color,
+          badge: props.badge,
+        })
+      );
+    }
   };
 
   return (
@@ -43,8 +65,15 @@ const Product = (props) => {
 
         {/* Heart Icon */}
         <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-all duration-500 transform translate-x-4 group-hover:translate-x-0">
-          <div className="bg-white/90 backdrop-blur-md rounded-full p-2 shadow-lg hover:bg-white transition-colors cursor-pointer">
-            <BsSuitHeartFill className="w-5 h-5 text-gray-400 hover:text-pink-500 transition-colors" />
+          <div 
+            onClick={handleWishlistToggle}
+            className="bg-white/90 backdrop-blur-md rounded-full p-2 shadow-lg hover:bg-white transition-colors cursor-pointer"
+          >
+            {isInWishlist ? (
+              <BsSuitHeartFill className="w-5 h-5 text-pink-500 transition-colors" />
+            ) : (
+              <BsSuitHeart className="w-5 h-5 text-gray-400 hover:text-pink-500 transition-colors" />
+            )}
           </div>
         </div>
 
