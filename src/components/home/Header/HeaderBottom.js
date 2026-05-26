@@ -9,7 +9,9 @@ import { paginationItems } from "../../../constants";
 import { addToWishlist } from "../../../redux/orebiSlice";
 
 const HeaderBottom = () => {
+  const dispatch = useDispatch();
   const cartProducts = useSelector((state) => state.orebiReducer.products);
+  const wishlistItems = useSelector((state) => state.orebiReducer.wishlist || []);
   const adminProducts = useSelector((state) => state.adminReducer.products);
   const products = adminProducts.length > 0 ? adminProducts : paginationItems;
   const [show, setShow] = useState(false);
