@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { Link } from "react-router-dom";
 import Slider from "react-slick";
 import {
@@ -8,7 +8,6 @@ import {
 import Image from "../designLayouts/Image";
 
 const Banner = () => {
-  const [dotActive, setDocActive] = useState(0);
   const settings = {
     dots: false,
     infinite: true,
@@ -16,9 +15,6 @@ const Banner = () => {
     slidesToShow: 1,
     slidesToScroll: 1,
     arrows: false,
-    beforeChange: (prev, next) => {
-      setDocActive(next);
-    },
     responsive: [
       {
         breakpoint: 768,
