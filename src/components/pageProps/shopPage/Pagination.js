@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import Product from "../../home/Products/Product";
 import { useSelector } from "react-redux";
 
@@ -27,10 +27,7 @@ const Pagination = ({ itemsPerPage }) => {
   const { products } = useSelector((state) => state.adminReducer);
   const items = products.length > 0 ? products : [];
   
-  const [itemOffset, setItemOffset] = useState(0);
-
-  const endOffset = itemOffset + itemsPerPage;
-  const currentItems = items.slice(itemOffset, endOffset);
+  const currentItems = items.slice(0, itemsPerPage);
 
   return (
     <div>
