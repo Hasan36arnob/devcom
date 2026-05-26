@@ -1,11 +1,13 @@
 import React from "react";
 import { useSelector } from "react-redux";
 import { Navigate } from "react-router-dom";
+import { isAuthenticated } from "../utils/auth";
 
 const AdminProtectedRoute = ({ children }) => {
-  const { isAuthenticated } = useSelector((state) => state.adminReducer);
+  const { isAuthenticated: reduxAuth } = useSelector((state) => state.adminReducer);
+  const localAuth = isAuthenticated();
 
-  if (!isAuthenticated) {
+  if (!reduxAuth || !localAuth) {
     return <Navigate to="/admin/login" replace />;
   }
 

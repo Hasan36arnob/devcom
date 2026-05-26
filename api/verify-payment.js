@@ -1,7 +1,13 @@
 // Vercel Serverless Function for Payment Verification
 // Handles SSLCommerz, bKash, Nagad, and Rocket payment verification webhooks
 
+import connectToDatabase from './utils/db.js';
+import Order from './models/Order.js';
+import Coupon from './models/Coupon.js';
+
 export default async function handler(req, res) {
+  await connectToDatabase();
+
   // Allow both POST (for webhooks) and GET (for manual verification)
   if (req.method !== 'POST' && req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' });
@@ -32,6 +38,25 @@ export default async function handler(req, res) {
         break;
       default:
         return res.status(400).json({ error: 'Unsupported payment gateway' });
+    }
+
+    // Update order in MongoDB with payment status
+    if (response.success) {
+      const order = await Order.findOne({ transactionId });
+      if (order) {
+        order.paymentStatus = response.status === 'VALID' || response.status === 'Completed' || response.status === 'Success' ? 'Paid' : 'Failed';
+        
+        // If payment successful and coupon was used, increment coupon usage
+        if (order.paymentStatus === 'Paid' && order.couponCode) {
+          const coupon = await Coupon.findOne({ code: order.couponCode.toUpperCase() });
+          if (coupon) {
+            coupon.usedCount += 1;
+            await coupon.save();
+          }
+        }
+        
+        await order.save();
+      }
     }
 
     return res.status(200).json(response);

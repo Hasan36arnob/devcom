@@ -1,163 +1,176 @@
 // Product Rating and Review Service
+import { api } from '../utils/apiHelper';
 
 export const ReviewService = {
-  addReview: (productId, reviewData) => {
-    const reviews = JSON.parse(localStorage.getItem('reviews') || '[]');
-    
-    const newReview = {
-      id: Date.now().toString(),
-      productId,
-      customerName: reviewData.customerName,
-      customerEmail: reviewData.customerEmail,
-      rating: reviewData.rating,
-      title: reviewData.title,
-      comment: reviewData.comment,
-      pros: reviewData.pros || [],
-      cons: reviewData.cons || [],
-      images: reviewData.images || [],
-      verifiedPurchase: reviewData.verifiedPurchase || false,
-      helpful: 0,
-      notHelpful: 0,
-      createdAt: new Date().toISOString(),
-    };
-
-    reviews.push(newReview);
-    localStorage.setItem('reviews', JSON.stringify(reviews));
-    
-    // Update product rating
-    ReviewService.updateProductRating(productId);
-    
-    return newReview;
+  addReview: async (productId, reviewData) => {
+    try {
+      const response = await api.post('/reviews', {
+        productId,
+        ...reviewData,
+      });
+      return response.review;
+    } catch (error) {
+      console.error('Add review error:', error);
+      throw error;
+    }
   },
 
-  getProductReviews: (productId) => {
-    const reviews = JSON.parse(localStorage.getItem('reviews') || '[]');
-    return reviews.filter(r => r.productId === productId);
+  getProductReviews: async (productId) => {
+    try {
+      const response = await api.get(`/reviews?productId=${productId}`);
+      return response.reviews;
+    } catch (error) {
+      console.error('Get product reviews error:', error);
+      throw error;
+    }
   },
 
-  getReviewById: (reviewId) => {
-    const reviews = JSON.parse(localStorage.getItem('reviews') || '[]');
-    return reviews.find(r => r.id === reviewId);
+  getReviewById: async (reviewId) => {
+    try {
+      const reviews = await ReviewService.getProductReviews('');
+      return reviews.find(r => r._id === reviewId) || null;
+    } catch (error) {
+      console.error('Get review by id error:', error);
+      throw error;
+    }
   },
 
-  updateReview: (reviewId, updates) => {
-    const reviews = JSON.parse(localStorage.getItem('reviews') || '[]');
-    const index = reviews.findIndex(r => r.id === reviewId);
-    
-    if (index !== -1) {
-      reviews[index] = { ...reviews[index], ...updates, updatedAt: new Date().toISOString() };
-      localStorage.setItem('reviews', JSON.stringify(reviews));
+  updateReview: async (reviewId, updates) => {
+    try {
+      const response = await api.put('/reviews', { id: reviewId, ...updates });
+      return response.review;
+    } catch (error) {
+      console.error('Update review error:', error);
+      throw error;
+    }
+  },
+
+  deleteReview: async (reviewId) => {
+    try {
+      await api.delete(`/reviews?id=${reviewId}`);
+      return true;
+    } catch (error) {
+      console.error('Delete review error:', error);
+      throw error;
+    }
+  },
+
+  markHelpful: async (reviewId) => {
+    try {
+      const response = await api.put('/reviews', {
+        id: reviewId,
+        helpful: 1,
+      });
+      return response.review;
+    } catch (error) {
+      console.error('Mark helpful error:', error);
+      throw error;
+    }
+  },
+
+  markNotHelpful: async (reviewId) => {
+    try {
+      const response = await api.put('/reviews', {
+        id: reviewId,
+        notHelpful: 1,
+      });
+      return response.review;
+    } catch (error) {
+      console.error('Mark not helpful error:', error);
+      throw error;
+    }
+  },
+
+  updateProductRating: async (productId) => {
+    try {
+      const reviews = await ReviewService.getProductReviews(productId);
       
-      // Update product rating
-      ReviewService.updateProductRating(reviews[index].productId);
+      if (reviews.length === 0) {
+        return { average: 0, count: 0 };
+      }
+
+      const totalRating = reviews.reduce((sum, review) => sum + review.rating, 0);
+      const averageRating = totalRating / reviews.length;
+
+      // Update product via API
+      await api.put('/products', {
+        _id: productId,
+        rating: Math.round(averageRating * 10) / 10,
+        reviewCount: reviews.length,
+      });
+
+      return {
+        average: Math.round(averageRating * 10) / 10,
+        count: reviews.length,
+      };
+    } catch (error) {
+      console.error('Update product rating error:', error);
+      throw error;
+    }
+  },
+
+  getProductRating: async (productId) => {
+    try {
+      const reviews = await ReviewService.getProductReviews(productId);
       
-      return reviews[index];
+      if (reviews.length === 0) {
+        return { average: 0, count: 0 };
+      }
+
+      const totalRating = reviews.reduce((sum, review) => sum + review.rating, 0);
+      const averageRating = totalRating / reviews.length;
+
+      return {
+        average: Math.round(averageRating * 10) / 10,
+        count: reviews.length,
+      };
+    } catch (error) {
+      console.error('Get product rating error:', error);
+      throw error;
     }
-    
-    return null;
   },
 
-  deleteReview: (reviewId) => {
-    const reviews = JSON.parse(localStorage.getItem('reviews') || '[]');
-    const review = reviews.find(r => r.id === reviewId);
-    const filtered = reviews.filter(r => r.id !== reviewId);
-    localStorage.setItem('reviews', JSON.stringify(filtered));
-    
-    // Update product rating
-    if (review) {
-      ReviewService.updateProductRating(review.productId);
+  getTopReviews: async (productId, limit = 5) => {
+    try {
+      const reviews = await ReviewService.getProductReviews(productId);
+      return reviews
+        .sort((a, b) => b.helpful - a.helpful)
+        .slice(0, limit);
+    } catch (error) {
+      console.error('Get top reviews error:', error);
+      throw error;
     }
   },
 
-  markHelpful: (reviewId) => {
-    const reviews = JSON.parse(localStorage.getItem('reviews') || '[]');
-    const index = reviews.findIndex(r => r.id === reviewId);
-    
-    if (index !== -1) {
-      reviews[index].helpful += 1;
-      localStorage.setItem('reviews', JSON.stringify(reviews));
-      return reviews[index];
+  getRecentReviews: async (productId, limit = 5) => {
+    try {
+      const reviews = await ReviewService.getProductReviews(productId);
+      return reviews
+        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+        .slice(0, limit);
+    } catch (error) {
+      console.error('Get recent reviews error:', error);
+      throw error;
     }
-    
-    return null;
   },
 
-  markNotHelpful: (reviewId) => {
-    const reviews = JSON.parse(localStorage.getItem('reviews') || '[]');
-    const index = reviews.findIndex(r => r.id === reviewId);
-    
-    if (index !== -1) {
-      reviews[index].notHelpful += 1;
-      localStorage.setItem('reviews', JSON.stringify(reviews));
-      return reviews[index];
+  getReviewsByRating: async (productId, rating) => {
+    try {
+      const reviews = await ReviewService.getProductReviews(productId);
+      return reviews.filter(r => r.rating === rating);
+    } catch (error) {
+      console.error('Get reviews by rating error:', error);
+      throw error;
     }
-    
-    return null;
   },
 
-  updateProductRating: (productId) => {
-    const reviews = ReviewService.getProductReviews(productId);
-    
-    if (reviews.length === 0) {
-      return { average: 0, count: 0 };
+  getVerifiedPurchaseReviews: async (productId) => {
+    try {
+      const reviews = await ReviewService.getProductReviews(productId);
+      return reviews.filter(r => r.verifiedPurchase);
+    } catch (error) {
+      console.error('Get verified purchase reviews error:', error);
+      throw error;
     }
-
-    const totalRating = reviews.reduce((sum, review) => sum + review.rating, 0);
-    const averageRating = totalRating / reviews.length;
-
-    // Update product in products array
-    const products = JSON.parse(localStorage.getItem('products') || '[]');
-    const productIndex = products.findIndex(p => p._id === productId);
-    
-    if (productIndex !== -1) {
-      products[productIndex].rating = Math.round(averageRating * 10) / 10;
-      products[productIndex].reviewCount = reviews.length;
-      localStorage.setItem('products', JSON.stringify(products));
-    }
-
-    return {
-      average: Math.round(averageRating * 10) / 10,
-      count: reviews.length,
-    };
-  },
-
-  getProductRating: (productId) => {
-    const reviews = ReviewService.getProductReviews(productId);
-    
-    if (reviews.length === 0) {
-      return { average: 0, count: 0 };
-    }
-
-    const totalRating = reviews.reduce((sum, review) => sum + review.rating, 0);
-    const averageRating = totalRating / reviews.length;
-
-    return {
-      average: Math.round(averageRating * 10) / 10,
-      count: reviews.length,
-    };
-  },
-
-  getTopReviews: (productId, limit = 5) => {
-    const reviews = ReviewService.getProductReviews(productId);
-    return reviews
-      .sort((a, b) => b.helpful - a.helpful)
-      .slice(0, limit);
-  },
-
-  getRecentReviews: (productId, limit = 5) => {
-    const reviews = ReviewService.getProductReviews(productId);
-    return reviews
-      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-      .slice(0, limit);
-  },
-
-  getReviewsByRating: (productId, rating) => {
-    const reviews = ReviewService.getProductReviews(productId);
-    return reviews.filter(r => r.rating === rating);
-  },
-
-  getVerifiedPurchaseReviews: (productId) => {
-    const reviews = ReviewService.getProductReviews(productId);
-    return reviews.filter(r => r.verifiedPurchase);
   },
 };

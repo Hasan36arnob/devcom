@@ -1,10 +1,35 @@
 // Vercel Serverless Function for Shipment Tracking
 // Handles Steadfast, Redx, and Pathao shipment tracking
 
+import connectToDatabase from './utils/db.js';
+import Order from './models/Order.js';
+import { authenticate, authorize } from './utils/authMiddleware.js';
+
 export default async function handler(req, res) {
+  await connectToDatabase();
+
   // Allow both POST and GET requests
   if (req.method !== 'POST' && req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  // Authentication check
+  const authResult = await new Promise((resolve) => {
+    authenticate(req, res, () => resolve({ success: true }));
+  });
+  
+  if (!authResult.success && res.headersSent) {
+    return;
+  }
+
+  // Authorization check - all authenticated users can track shipments
+  const authCheck = authorize(['admin', 'manager', 'accountant', 'staff']);
+  const authResult2 = await new Promise((resolve) => {
+    authCheck(req, res, () => resolve({ success: true }));
+  });
+  
+  if (!authResult2.success && res.headersSent) {
+    return;
   }
 
   try {
@@ -29,6 +54,28 @@ export default async function handler(req, res) {
         break;
       default:
         return res.status(400).json({ error: 'Unsupported courier service' });
+    }
+
+    // Update order in MongoDB with tracking status
+    if (response.success) {
+      const order = await Order.findOne({ trackingNumber });
+      if (order && response.status) {
+        order.status = response.status.toLowerCase();
+        
+        // Update tracking history
+        if (response.trackingHistory && response.trackingHistory.length > 0) {
+          order.trackingHistory = response.trackingHistory;
+        } else if (response.currentLocation) {
+          order.trackingHistory.push({
+            status: response.status,
+            location: response.currentLocation,
+            timestamp: new Date(),
+            description: `Status updated to ${response.status}`,
+          });
+        }
+        
+        await order.save();
+      }
     }
 
     return res.status(200).json(response);

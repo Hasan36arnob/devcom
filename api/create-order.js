@@ -1,10 +1,35 @@
 // Vercel Serverless Function for Courier Order Creation
 // Handles Steadfast, Redx, and Pathao courier integration
 
+import connectToDatabase from './utils/db.js';
+import Order from './models/Order.js';
+import { authenticate, authorize } from './utils/authMiddleware.js';
+
 export default async function handler(req, res) {
+  await connectToDatabase();
+
   // Only allow POST requests
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  // Authentication check
+  const authResult = await new Promise((resolve) => {
+    authenticate(req, res, () => resolve({ success: true }));
+  });
+  
+  if (!authResult.success && res.headersSent) {
+    return;
+  }
+
+  // Authorization check - only admin and manager can create orders
+  const authCheck = authorize(['admin', 'manager']);
+  const authResult2 = await new Promise((resolve) => {
+    authCheck(req, res, () => resolve({ success: true }));
+  });
+  
+  if (!authResult2.success && res.headersSent) {
+    return;
   }
 
   try {
@@ -14,6 +39,15 @@ export default async function handler(req, res) {
     if (!courier || !orderData) {
       return res.status(400).json({ error: 'Missing required fields: courier and orderData' });
     }
+
+    // Save order to MongoDB as pending before triggering courier
+    const order = await Order.create({
+      ...orderData,
+      status: 'pending',
+      courier: courier.toLowerCase(),
+      paymentStatus: 'Pending',
+      isComplete: true,
+    });
 
     let response;
 
@@ -31,7 +65,13 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: 'Unsupported courier service' });
     }
 
-    return res.status(200).json(response);
+    // Update order with tracking number if successful
+    if (response.success && response.trackingNumber) {
+      order.trackingNumber = response.trackingNumber;
+      await order.save();
+    }
+
+    return res.status(200).json({ ...response, orderId: order._id.toString() });
   } catch (error) {
     console.error('Courier order creation error:', error);
     return res.status(500).json({ error: 'Courier order creation failed', message: error.message });

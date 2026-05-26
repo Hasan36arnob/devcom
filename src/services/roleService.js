@@ -1,4 +1,5 @@
 // Role-based Access Control Service
+import { api } from '../utils/apiHelper';
 
 export const RoleService = {
   ROLES: {
@@ -103,104 +104,112 @@ export const RoleService = {
     return permissions.every(permission => RoleService.hasPermission(role, permission));
   },
 
-  createUser: (userData) => {
-    const users = JSON.parse(localStorage.getItem('users') || '[]');
-    
-    const newUser = {
-      id: Date.now().toString(),
-      username: userData.username,
-      email: userData.email,
-      password: userData.password, // In production, hash this
-      role: userData.role || 'staff',
-      fullName: userData.fullName,
-      phone: userData.phone,
-      isActive: true,
-      createdAt: new Date().toISOString(),
-      lastLogin: null,
-    };
-
-    users.push(newUser);
-    localStorage.setItem('users', JSON.stringify(users));
-    
-    // Remove password before returning
-    const { password, ...userWithoutPassword } = newUser;
-    return userWithoutPassword;
-  },
-
-  getUsers: () => {
-    const users = JSON.parse(localStorage.getItem('users') || '[]');
-    return users.map(user => {
-      const { password, ...userWithoutPassword } = user;
-      return userWithoutPassword;
-    });
-  },
-
-  getUserById: (userId) => {
-    const users = JSON.parse(localStorage.getItem('users') || '[]');
-    const user = users.find(u => u.id === userId);
-    if (user) {
-      const { password, ...userWithoutPassword } = user;
-      return userWithoutPassword;
-    }
-    return null;
-  },
-
-  updateUser: (userId, updates) => {
-    const users = JSON.parse(localStorage.getItem('users') || '[]');
-    const index = users.findIndex(u => u.id === userId);
-    
-    if (index !== -1) {
-      users[index] = { ...users[index], ...updates, updatedAt: new Date().toISOString() };
-      localStorage.setItem('users', JSON.stringify(users));
+  // Authentication - now uses API
+  authenticateUser: async (username, password) => {
+    try {
+      const response = await api.post('/auth', {
+        action: 'login',
+        username,
+        password,
+      });
       
-      const { password, ...userWithoutPassword } = users[index];
-      return userWithoutPassword;
-    }
-    
-    return null;
-  },
-
-  deleteUser: (userId) => {
-    const users = JSON.parse(localStorage.getItem('users') || '[]');
-    const filtered = users.filter(u => u.id !== userId);
-    localStorage.setItem('users', JSON.stringify(filtered));
-  },
-
-  toggleUserStatus: (userId) => {
-    const users = JSON.parse(localStorage.getItem('users') || '[]');
-    const index = users.findIndex(u => u.id === userId);
-    
-    if (index !== -1) {
-      users[index].isActive = !users[index].isActive;
-      localStorage.setItem('users', JSON.stringify(users));
+      if (response.success && response.token) {
+        // Store token in localStorage
+        const authData = JSON.parse(localStorage.getItem('admin_auth') || '{}');
+        authData.token = response.token;
+        authData.user = response.user;
+        authData.isAuthenticated = true;
+        authData.loginTime = new Date().toISOString();
+        localStorage.setItem('admin_auth', JSON.stringify(authData));
+        
+        return response.user;
+      }
       
-      const { password, ...userWithoutPassword } = users[index];
-      return userWithoutPassword;
+      return null;
+    } catch (error) {
+      console.error('Authentication error:', error);
+      return null;
     }
-    
-    return null;
   },
 
-  authenticateUser: (username, password) => {
-    const users = JSON.parse(localStorage.getItem('users') || '[]');
-    const user = users.find(u => u.username === username && u.password === password);
-    
-    if (user && user.isActive) {
-      // Update last login
-      const index = users.findIndex(u => u.id === user.id);
-      users[index].lastLogin = new Date().toISOString();
-      localStorage.setItem('users', JSON.stringify(users));
-      
-      const { password: _, ...userWithoutPassword } = user;
-      return userWithoutPassword;
+  // User management - now uses API
+  createUser: async (userData) => {
+    try {
+      const response = await api.post('/users', userData);
+      return response.user;
+    } catch (error) {
+      console.error('Create user error:', error);
+      throw error;
     }
-    
-    return null;
   },
 
-  getUsersByRole: (role) => {
-    const users = RoleService.getUsers();
-    return users.filter(user => user.role === role);
+  getUsers: async (role = null) => {
+    try {
+      const params = role ? { role } : {};
+      const response = await api.get(`/users?${new URLSearchParams(params)}`);
+      return response.users;
+    } catch (error) {
+      console.error('Get users error:', error);
+      throw error;
+    }
+  },
+
+  getUserById: async (userId) => {
+    try {
+      const response = await api.get(`/users?userId=${userId}`);
+      const user = response.users.find(u => u._id === userId);
+      return user || null;
+    } catch (error) {
+      console.error('Get user error:', error);
+      throw error;
+    }
+  },
+
+  updateUser: async (userId, updates) => {
+    try {
+      const response = await api.put(`/users?userId=${userId}`, updates);
+      return response.user;
+    } catch (error) {
+      console.error('Update user error:', error);
+      throw error;
+    }
+  },
+
+  deleteUser: async (userId) => {
+    try {
+      await api.delete(`/users?userId=${userId}`);
+      return true;
+    } catch (error) {
+      console.error('Delete user error:', error);
+      throw error;
+    }
+  },
+
+  toggleUserStatus: async (userId) => {
+    try {
+      const users = await RoleService.getUsers();
+      const user = users.find(u => u._id === userId);
+      if (user) {
+        const response = await api.put(`/users?userId=${userId}`, {
+          isActive: !user.isActive,
+        });
+        return response.user;
+      }
+      return null;
+    } catch (error) {
+      console.error('Toggle user status error:', error);
+      throw error;
+    }
+  },
+
+  getUsersByRole: async (role) => {
+    try {
+      const response = await api.get(`/users?role=${role}`);
+      return response.users;
+    } catch (error) {
+      console.error('Get users by role error:', error);
+      throw error;
+    }
   },
 
   getRoleDisplayName: (role) => {

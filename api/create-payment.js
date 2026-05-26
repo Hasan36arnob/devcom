@@ -1,10 +1,35 @@
 // Vercel Serverless Function for Payment Initiation
 // Handles SSLCommerz, bKash, Nagad, and Rocket payment initiation
 
+import connectToDatabase from './utils/db.js';
+import Order from './models/Order.js';
+import { authenticate, authorize } from './utils/authMiddleware.js';
+
 export default async function handler(req, res) {
+  await connectToDatabase();
+
   // Only allow POST requests
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  // Authentication check
+  const authResult = await new Promise((resolve) => {
+    authenticate(req, res, () => resolve({ success: true }));
+  });
+  
+  if (!authResult.success && res.headersSent) {
+    return;
+  }
+
+  // Authorization check - only admin and manager can initiate payments
+  const authCheck = authorize(['admin', 'manager']);
+  const authResult2 = await new Promise((resolve) => {
+    authCheck(req, res, () => resolve({ success: true }));
+  });
+  
+  if (!authResult2.success && res.headersSent) {
+    return;
   }
 
   try {
@@ -13,6 +38,30 @@ export default async function handler(req, res) {
     // Validate required fields
     if (!gateway || !paymentData) {
       return res.status(400).json({ error: 'Missing required fields: gateway and paymentData' });
+    }
+
+    // Save order to MongoDB as pending before triggering payment gateway
+    if (paymentData.orderId) {
+      const order = await Order.create({
+        _id: paymentData.orderId,
+        customerName: paymentData.cus_name,
+        customerEmail: paymentData.cus_email,
+        customerPhone: paymentData.cus_phone,
+        customerAddress: paymentData.cus_add1,
+        billingAddress: paymentData.ship_add1 || paymentData.cus_add1,
+        items: paymentData.items || [],
+        subtotal: paymentData.subtotal || paymentData.total_amount,
+        shippingCost: paymentData.shippingCost || 0,
+        discount: paymentData.discount || 0,
+        tax: paymentData.tax || 0,
+        total: paymentData.total_amount,
+        status: 'pending',
+        paymentMethod: gateway.toLowerCase(),
+        paymentStatus: 'Pending',
+        paymentGateway: gateway.toLowerCase(),
+        transactionId: paymentData.tran_id || paymentData.merchantInvoiceNumber,
+        isComplete: true,
+      });
     }
 
     let response;

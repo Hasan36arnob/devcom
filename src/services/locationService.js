@@ -1,29 +1,33 @@
 // Location-based Customer Segmentation Service
+import { api } from '../utils/apiHelper';
 
 export const LocationService = {
-  segmentCustomersByLocation: () => {
-    const customers = JSON.parse(localStorage.getItem('customers') || '[]');
-    const orders = JSON.parse(localStorage.getItem('orders') || '[]');
-    
-    const locationSegments = {
-      dhaka: { customers: [], orders: [], totalRevenue: 0 },
-      outsideDhaka: { customers: [], orders: [], totalRevenue: 0 },
-      remote: { customers: [], orders: [], totalRevenue: 0 },
-      international: { customers: [], orders: [], totalRevenue: 0 },
-    };
+  segmentCustomersByLocation: async () => {
+    try {
+      const [ordersResponse] = await Promise.all([
+        api.get('/orders'),
+      ]);
+      
+      const orders = ordersResponse.orders;
+      
+      const locationSegments = {
+        dhaka: { customers: [], orders: [], totalRevenue: 0 },
+        outsideDhaka: { customers: [], orders: [], totalRevenue: 0 },
+        remote: { customers: [], orders: [], totalRevenue: 0 },
+        international: { customers: [], orders: [], totalRevenue: 0 },
+      };
 
-    customers.forEach(customer => {
-      const location = LocationService.detectLocation(customer.address);
-      locationSegments[location].customers.push(customer);
-    });
+      orders.forEach(order => {
+        const location = LocationService.detectLocation(order.customerAddress);
+        locationSegments[location].orders.push(order);
+        locationSegments[location].totalRevenue += order.total;
+      });
 
-    orders.forEach(order => {
-      const location = LocationService.detectLocation(order.customerAddress);
-      locationSegments[location].orders.push(order);
-      locationSegments[location].totalRevenue += order.total;
-    });
-
-    return locationSegments;
+      return locationSegments;
+    } catch (error) {
+      console.error('Segment customers by location error:', error);
+      throw error;
+    }
   },
 
   detectLocation: (address) => {
@@ -82,119 +86,99 @@ export const LocationService = {
     return offers[location] || offers.outsideDhaka;
   },
 
-  getCustomerLocationStats: (customerId) => {
-    const customers = JSON.parse(localStorage.getItem('customers') || '[]');
-    const customer = customers.find(c => c.id === customerId);
-    
-    if (!customer) {
-      return null;
+  getCustomerLocationStats: async (customerId) => {
+    try {
+      // Note: Customer management would need a separate API endpoint
+      // For now, we'll use order data to infer location
+      const ordersResponse = await api.get('/orders');
+      const customerOrders = ordersResponse.orders.filter(o => o.customerEmail === customerId);
+      
+      if (customerOrders.length === 0) {
+        return null;
+      }
+
+      const address = customerOrders[0].customerAddress;
+      const location = LocationService.detectLocation(address);
+      const offers = LocationService.getLocationBasedOffers(address);
+
+      return {
+        location,
+        offers,
+        address,
+      };
+    } catch (error) {
+      console.error('Get customer location stats error:', error);
+      throw error;
     }
-
-    const location = LocationService.detectLocation(customer.address);
-    const offers = LocationService.getLocationBasedOffers(customer.address);
-
-    return {
-      location,
-      offers,
-      customer,
-    };
   },
 
-  getRegionalSalesReport: (startDate, endDate) => {
-    const locationSegments = LocationService.segmentCustomersByLocation();
-    const orders = JSON.parse(localStorage.getItem('orders') || '[]');
-    
-    const filteredOrders = orders.filter(order => {
-      const orderDate = new Date(order.createdAt);
-      return orderDate >= new Date(startDate) && orderDate <= new Date(endDate);
-    });
+  getRegionalSalesReport: async (startDate, endDate) => {
+    try {
+      const response = await api.get(`/orders?startDate=${startDate}&endDate=${endDate}`);
+      const orders = response.orders;
 
-    const regionalSales = {
-      dhaka: { orders: [], revenue: 0, avgOrderValue: 0 },
-      outsideDhaka: { orders: [], revenue: 0, avgOrderValue: 0 },
-      remote: { orders: [], revenue: 0, avgOrderValue: 0 },
-      international: { orders: [], revenue: 0, avgOrderValue: 0 },
-    };
+      const regionalSales = {
+        dhaka: { orders: [], revenue: 0, avgOrderValue: 0 },
+        outsideDhaka: { orders: [], revenue: 0, avgOrderValue: 0 },
+        remote: { orders: [], revenue: 0, avgOrderValue: 0 },
+        international: { orders: [], revenue: 0, avgOrderValue: 0 },
+      };
 
-    filteredOrders.forEach(order => {
-      const location = LocationService.detectLocation(order.customerAddress);
-      regionalSales[location].orders.push(order);
-      regionalSales[location].revenue += order.total;
-    });
+      orders.forEach(order => {
+        const location = LocationService.detectLocation(order.customerAddress);
+        regionalSales[location].orders.push(order);
+        regionalSales[location].revenue += order.total;
+      });
 
-    // Calculate average order values
-    Object.keys(regionalSales).forEach(region => {
-      const regionData = regionalSales[region];
-      regionData.avgOrderValue = regionData.orders.length > 0 
-        ? regionData.revenue / regionData.orders.length 
-        : 0;
-    });
+      // Calculate average order values
+      Object.keys(regionalSales).forEach(region => {
+        const regionData = regionalSales[region];
+        regionData.avgOrderValue = regionData.orders.length > 0 
+          ? regionData.revenue / regionData.orders.length 
+          : 0;
+      });
 
-    return regionalSales;
+      return regionalSales;
+    } catch (error) {
+      console.error('Get regional sales report error:', error);
+      throw error;
+    }
   },
 
-  targetLocationBasedCampaign: (location, campaignData) => {
-    const customers = JSON.parse(localStorage.getItem('customers') || '[]');
-    
-    const targetCustomers = customers.filter(customer => {
-      return LocationService.detectLocation(customer.address) === location;
-    });
-
-    const campaign = {
-      id: Date.now().toString(),
-      location,
-      targetCustomers: targetCustomers.map(c => c.id),
-      ...campaignData,
-      createdAt: new Date().toISOString(),
-    };
-
-    const campaigns = JSON.parse(localStorage.getItem('campaigns') || '[]');
-    campaigns.push(campaign);
-    localStorage.setItem('campaigns', JSON.stringify(campaigns));
-
-    return campaign;
-  },
-
-  getLocationHeatmapData: () => {
-    const locationSegments = LocationService.segmentCustomersByLocation();
-    
-    return {
-      dhaka: {
-        count: locationSegments.dhaka.customers.length,
-        revenue: locationSegments.dhaka.totalRevenue,
-        percentage: locationSegments.dhaka.customers.length / 
-          (locationSegments.dhaka.customers.length + 
-           locationSegments.outsideDhaka.customers.length + 
-           locationSegments.remote.customers.length + 
-           locationSegments.international.customers.length) * 100,
-      },
-      outsideDhaka: {
-        count: locationSegments.outsideDhaka.customers.length,
-        revenue: locationSegments.outsideDhaka.totalRevenue,
-        percentage: locationSegments.outsideDhaka.customers.length / 
-          (locationSegments.dhaka.customers.length + 
-           locationSegments.outsideDhaka.customers.length + 
-           locationSegments.remote.customers.length + 
-           locationSegments.international.customers.length) * 100,
-      },
-      remote: {
-        count: locationSegments.remote.customers.length,
-        revenue: locationSegments.remote.totalRevenue,
-        percentage: locationSegments.remote.customers.length / 
-          (locationSegments.dhaka.customers.length + 
-           locationSegments.outsideDhaka.customers.length + 
-           locationSegments.remote.customers.length + 
-           locationSegments.international.customers.length) * 100,
-      },
-      international: {
-        count: locationSegments.international.customers.length,
-        revenue: locationSegments.international.totalRevenue,
-        percentage: locationSegments.international.customers.length / 
-          (locationSegments.dhaka.customers.length + 
-           locationSegments.outsideDhaka.customers.length + 
-           locationSegments.remote.customers.length + 
-           locationSegments.international.customers.length) * 100,
-      },
-    };
+  getLocationHeatmapData: async () => {
+    try {
+      const locationSegments = await LocationService.segmentCustomersByLocation();
+      
+      const totalCustomers = locationSegments.dhaka.customers.length + 
+        locationSegments.outsideDhaka.customers.length + 
+        locationSegments.remote.customers.length + 
+        locationSegments.international.customers.length;
+      
+      return {
+        dhaka: {
+          count: locationSegments.dhaka.customers.length,
+          revenue: locationSegments.dhaka.totalRevenue,
+          percentage: totalCustomers > 0 ? (locationSegments.dhaka.customers.length / totalCustomers) * 100 : 0,
+        },
+        outsideDhaka: {
+          count: locationSegments.outsideDhaka.customers.length,
+          revenue: locationSegments.outsideDhaka.totalRevenue,
+          percentage: totalCustomers > 0 ? (locationSegments.outsideDhaka.customers.length / totalCustomers) * 100 : 0,
+        },
+        remote: {
+          count: locationSegments.remote.customers.length,
+          revenue: locationSegments.remote.totalRevenue,
+          percentage: totalCustomers > 0 ? (locationSegments.remote.customers.length / totalCustomers) * 100 : 0,
+        },
+        international: {
+          count: locationSegments.international.customers.length,
+          revenue: locationSegments.international.totalRevenue,
+          percentage: totalCustomers > 0 ? (locationSegments.international.customers.length / totalCustomers) * 100 : 0,
+        },
+      };
+    } catch (error) {
+      console.error('Get location heatmap data error:', error);
+      throw error;
+    }
   },
 };

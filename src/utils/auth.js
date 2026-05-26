@@ -1,27 +1,35 @@
-// Simple Admin Authentication using localStorage
-// No database required - uses environment variables for credentials
-
-const ADMIN_USERNAME = process.env.REACT_APP_ADMIN_USERNAME || 'admin';
-const ADMIN_PASSWORD = process.env.REACT_APP_ADMIN_PASSWORD || 'admin';
+// JWT-based Authentication using API
+import { api } from './apiHelper';
 
 const STORAGE_KEY = 'admin_auth';
 
 /**
- * Login function - validates credentials against environment variables
+ * Login function - validates credentials against API and stores JWT token
  */
-export const login = (username, password) => {
-  if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
-    const authData = {
-      isAuthenticated: true,
-      username: username,
-      loginTime: new Date().toISOString(),
-    };
+export const login = async (username, password) => {
+  try {
+    const response = await api.post('/auth', {
+      action: 'login',
+      username,
+      password,
+    });
     
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(authData));
-    return { success: true, message: 'Login successful' };
+    if (response.success && response.token) {
+      const authData = {
+        isAuthenticated: true,
+        token: response.token,
+        user: response.user,
+        loginTime: new Date().toISOString(),
+      };
+      
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(authData));
+      return { success: true, message: 'Login successful', user: response.user };
+    }
+    
+    return { success: false, message: 'Invalid credentials' };
+  } catch (error) {
+    return { success: false, message: error.message || 'Login failed' };
   }
-  
-  return { success: false, message: 'Invalid credentials' };
 };
 
 /**
@@ -38,7 +46,7 @@ export const logout = () => {
 export const isAuthenticated = () => {
   try {
     const authData = JSON.parse(localStorage.getItem(STORAGE_KEY));
-    return authData && authData.isAuthenticated === true;
+    return authData && authData.isAuthenticated === true && authData.token;
   } catch (error) {
     return false;
   }
@@ -50,14 +58,37 @@ export const isAuthenticated = () => {
 export const getCurrentUser = () => {
   try {
     const authData = JSON.parse(localStorage.getItem(STORAGE_KEY));
-    if (authData && authData.isAuthenticated) {
-      return {
-        username: authData.username,
-        loginTime: authData.loginTime,
-      };
+    if (authData && authData.isAuthenticated && authData.user) {
+      return authData.user;
     }
     return null;
   } catch (error) {
+    return null;
+  }
+};
+
+/**
+ * Get JWT token
+ */
+export const getToken = () => {
+  try {
+    const authData = JSON.parse(localStorage.getItem(STORAGE_KEY));
+    return authData?.token || null;
+  } catch (error) {
+    return null;
+  }
+};
+
+/**
+ * Verify token validity with API
+ */
+export const verifyToken = async () => {
+  try {
+    const response = await api.get('/auth?action=verify');
+    return response.success ? response.user : null;
+  } catch (error) {
+    // Token is invalid, clear it
+    logout();
     return null;
   }
 };
@@ -111,19 +142,22 @@ export const useAuth = () => {
   const [loading, setLoading] = React.useState(true);
 
   React.useEffect(() => {
-    const checkAuth = () => {
-      const currentUser = getCurrentUser();
-      setUser(currentUser);
+    const checkAuth = async () => {
+      if (isAuthenticated()) {
+        // Verify token with API
+        const verifiedUser = await verifyToken();
+        setUser(verifiedUser);
+      }
       setLoading(false);
     };
 
     checkAuth();
   }, []);
 
-  const handleLogin = (username, password) => {
-    const result = login(username, password);
+  const handleLogin = async (username, password) => {
+    const result = await login(username, password);
     if (result.success) {
-      setUser(getCurrentUser());
+      setUser(result.user);
     }
     return result;
   };
@@ -141,48 +175,3 @@ export const useAuth = () => {
     logout: handleLogout,
   };
 };
-
-/**
- * Example usage in React components:
- * 
- * // In a login component:
- * import { login } from '../utils/auth';
- * 
- * const handleLogin = (e) => {
- *   e.preventDefault();
- *   const result = login(username, password);
- *   if (result.success) {
- *     navigate('/admin/dashboard');
- *   } else {
- *     setError(result.message);
- *   }
- * };
- * 
- * // In a protected route:
- * import { requireAuth } from '../utils/auth';
- * 
- * const ProtectedRoute = ({ children }) => {
- *   if (!requireAuth()) {
- *     return <Navigate to="/admin/login" />;
- *   }
- *   return children;
- * };
- * 
- * // Using the hook:
- * import { useAuth } from '../utils/auth';
- * 
- * const MyComponent = () => {
- *   const { user, isAuthenticated, logout } = useAuth();
- *   
- *   if (!isAuthenticated) {
- *     return <Login />;
- *   }
- *   
- *   return (
- *     <div>
- *       <p>Welcome, {user.username}</p>
- *       <button onClick={logout}>Logout</button>
- *     </div>
- *   );
- * };
- */
